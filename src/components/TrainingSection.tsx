@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,7 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,6 +42,16 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
     return () => clearInterval(interval);
   }, [isTimerActive, timeLeft]);
 
+  // تنظيف رسالة التغذية الراجعة بعد 3 ثوانٍ
+  useEffect(() => {
+    if (feedbackMessage) {
+      const timer = setTimeout(() => {
+        setFeedbackMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedbackMessage]);
+
   const generateQuestion = () => {
     const tables = selectedTables.length > 0 ? selectedTables : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const num1 = tables[Math.floor(Math.random() * tables.length)];
@@ -53,6 +63,15 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
       answer: num1 * num2
     });
     setUserAnswer('');
+    setFeedbackMessage(null);
+  };
+
+  // تحويل الأرقام الإنجليزية إلى هندية أثناء الكتابة
+  const handleAnswerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // تحويل الأرقام الإنجليزية إلى هندية
+    const arabicValue = value.replace(/[0-9]/g, (digit) => toArabicNumerals(parseInt(digit)));
+    setUserAnswer(arabicValue);
   };
 
   const checkAnswer = () => {
@@ -64,26 +83,23 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
     
     if (isCorrect) {
       setScore(score + 1);
-      toast({
-        title: "إجابة صحيحة! 🎉",
-        description: `${toArabicNumerals(currentQuestion.num1)} × ${toArabicNumerals(currentQuestion.num2)} = ${toArabicNumerals(currentQuestion.answer)}`,
-        duration: 2000,
+      setFeedbackMessage({
+        text: `إجابة صحيحة! 🎉 ${toArabicNumerals(currentQuestion.num1)} × ${toArabicNumerals(currentQuestion.num2)} = ${toArabicNumerals(currentQuestion.answer)}`,
+        type: 'success'
       });
     } else {
-      toast({
-        title: "إجابة خاطئة 😔",
-        description: `الإجابة الصحيحة: ${toArabicNumerals(currentQuestion.num1)} × ${toArabicNumerals(currentQuestion.num2)} = ${toArabicNumerals(currentQuestion.answer)}`,
-        variant: "destructive",
-        duration: 3000,
+      setFeedbackMessage({
+        text: `إجابة خاطئة 😔 الإجابة الصحيحة: ${toArabicNumerals(currentQuestion.num1)} × ${toArabicNumerals(currentQuestion.num2)} = ${toArabicNumerals(currentQuestion.answer)}`,
+        type: 'error'
       });
     }
 
     setTotalQuestions(totalQuestions + 1);
     
     if (trainingMode === 'timed' && isTimerActive) {
-      generateQuestion();
+      setTimeout(generateQuestion, 2000);
     } else if (trainingMode !== 'timed') {
-      setTimeout(generateQuestion, 1500);
+      setTimeout(generateQuestion, 2000);
     }
   };
 
@@ -92,6 +108,7 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
     setScore(0);
     setTotalQuestions(0);
     setShowResult(false);
+    setFeedbackMessage(null);
     
     if (mode === 'timed') {
       setTimeLeft(60);
@@ -110,6 +127,7 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
     setTimeLeft(60);
     setIsTimerActive(false);
     setShowResult(false);
+    setFeedbackMessage(null);
   };
 
   const toggleTable = (table: number) => {
@@ -260,11 +278,11 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
               {toArabicNumerals(currentQuestion.num1)} × {toArabicNumerals(currentQuestion.num2)} = ؟
             </div>
             
-            <div className="flex gap-4 justify-center items-center">
+            <div className="flex gap-4 justify-center items-center mb-6">
               <Input
                 type="text"
                 value={userAnswer}
-                onChange={(e) => setUserAnswer(e.target.value)}
+                onChange={handleAnswerChange}
                 onKeyPress={(e) => e.key === 'Enter' && userAnswer && checkAnswer()}
                 placeholder="أدخل الإجابة"
                 className="text-2xl text-center font-bold w-32"
@@ -278,6 +296,17 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
                 تحقق
               </Button>
             </div>
+
+            {/* Feedback Message */}
+            {feedbackMessage && (
+              <div className={`p-4 rounded-lg text-lg font-semibold ${
+                feedbackMessage.type === 'success' 
+                  ? 'bg-green-100 text-green-800 border border-green-200' 
+                  : 'bg-red-100 text-red-800 border border-red-200'
+              }`}>
+                {feedbackMessage.text}
+              </div>
+            )}
           </Card>
         )}
       </div>
