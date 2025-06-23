@@ -7,6 +7,7 @@ import LearningSection from '@/components/LearningSection';
 import TrainingSection from '@/components/TrainingSection';
 import QuizSection from '@/components/QuizSection';
 import ProgressSection from '@/components/ProgressSection';
+import { toArabicNumerals } from '@/utils/arabicNumbers';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -23,7 +24,7 @@ const Index = () => {
         return <ProgressSection onBack={() => setActiveSection('home')} />;
       default:
         return (
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4">
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4 rtl-container">
             <div className="max-w-4xl mx-auto">
               {/* Header */}
               <div className="text-center mb-12">
@@ -31,7 +32,7 @@ const Index = () => {
                   🧮 أكاديمية جداول الضرب
                 </h1>
                 <p className="text-xl text-gray-600">
-                  تعلم جداول الضرب من 1 إلى 10 بطريقة ممتعة وتفاعلية!
+                  تعلم جداول الضرب من {toArabicNumerals(1)} إلى {toArabicNumerals(10)} بطريقة ممتعة وتفاعلية!
                 </p>
               </div>
 
@@ -97,16 +98,16 @@ const Index = () => {
                 </h3>
                 <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
                   <div className="bg-yellow-50 p-3 rounded-lg">
-                    <strong>جدول الـ 9:</strong> مجموع أرقام حاصل ضرب أي رقم في 9 يساوي دائماً 9!
+                    <strong>جدول الـ {toArabicNumerals(9)}:</strong> مجموع أرقام حاصل ضرب أي رقم في {toArabicNumerals(9)} يساوي دائماً {toArabicNumerals(9)}!
                   </div>
                   <div className="bg-green-50 p-3 rounded-lg">
-                    <strong>جدول الـ 5:</strong> ينتهي دائماً بـ 0 أو 5
+                    <strong>جدول الـ {toArabicNumerals(5)}:</strong> ينتهي دائماً بـ {toArabicNumerals(0)} أو {toArabicNumerals(5)}
                   </div>
                   <div className="bg-blue-50 p-3 rounded-lg">
-                    <strong>جدول الـ 2:</strong> كل النتائج أرقام زوجية
+                    <strong>جدول الـ {toArabicNumerals(2)}:</strong> كل النتائج أرقام زوجية
                   </div>
                   <div className="bg-purple-50 p-3 rounded-lg">
-                    <strong>جدول الـ 10:</strong> أسهل الجداول - فقط أضف صفر!
+                    <strong>جدول الـ {toArabicNumerals(10)}:</strong> أسهل الجداول - فقط أضف صفر!
                   </div>
                 </div>
               </Card>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowDown, Plus, Clock, CheckCircle, Circle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { toArabicNumerals, fromArabicNumerals, formatPercentageArabic } from '@/utils/arabicNumbers';
 
 interface TrainingProps {
   onBack: () => void;
@@ -57,19 +58,21 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
   const checkAnswer = () => {
     if (!currentQuestion) return;
 
-    const isCorrect = parseInt(userAnswer) === currentQuestion.answer;
+    // تحويل الإجابة من الأرقام الهندية إلى الإنجليزية للمقارنة
+    const userAnswerNum = fromArabicNumerals(userAnswer) || parseInt(userAnswer);
+    const isCorrect = userAnswerNum === currentQuestion.answer;
     
     if (isCorrect) {
       setScore(score + 1);
       toast({
         title: "إجابة صحيحة! 🎉",
-        description: `${currentQuestion.num1} × ${currentQuestion.num2} = ${currentQuestion.answer}`,
+        description: `${toArabicNumerals(currentQuestion.num1)} × ${toArabicNumerals(currentQuestion.num2)} = ${toArabicNumerals(currentQuestion.answer)}`,
         duration: 2000,
       });
     } else {
       toast({
         title: "إجابة خاطئة 😔",
-        description: `الإجابة الصحيحة: ${currentQuestion.num1} × ${currentQuestion.num2} = ${currentQuestion.answer}`,
+        description: `الإجابة الصحيحة: ${toArabicNumerals(currentQuestion.num1)} × ${toArabicNumerals(currentQuestion.num2)} = ${toArabicNumerals(currentQuestion.answer)}`,
         variant: "destructive",
         duration: 3000,
       });
@@ -119,11 +122,11 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
 
   if (trainingMode === 'select') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 rtl-container">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <Button onClick={onBack} variant="outline" className="flex items-center gap-2">
-              <ArrowDown className="rotate-90" size={16} />
+              <ArrowDown className="rotate-90 icon-rtl" size={16} />
               العودة للقائمة الرئيسية
             </Button>
             <h1 className="text-3xl font-bold text-center flex items-center gap-3">
@@ -148,14 +151,14 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
                       : "hover:bg-green-50"
                   }`}
                 >
-                  {num}
+                  {toArabicNumerals(num)}
                 </Button>
               ))}
             </div>
             <p className="text-center text-gray-600">
               {selectedTables.length === 0 ? 
                 "لم يتم اختيار أي جدول - سيتم التدريب على جميع الجداول" :
-                `تم اختيار ${selectedTables.length} جدول`
+                `تم اختيار ${toArabicNumerals(selectedTables.length)} جدول`
               }
             </p>
           </Card>
@@ -191,7 +194,7 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
               <div className="text-center">
                 <Clock className="mx-auto mb-4" size={32} />
                 <h3 className="text-xl font-bold mb-2">تدريب بالوقت</h3>
-                <p className="text-red-100">تحدي الوقت - 60 ثانية!</p>
+                <p className="text-red-100">تحدي الوقت - {toArabicNumerals(60)} ثانية!</p>
               </div>
             </Card>
           </div>
@@ -203,13 +206,13 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
   if (showResult) {
     const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 flex items-center justify-center rtl-container">
         <Card className="p-8 text-center max-w-md">
           <CheckCircle className="mx-auto mb-4 text-green-600" size={64} />
           <h2 className="text-3xl font-bold mb-4">انتهى التدريب!</h2>
           <div className="space-y-3 mb-6">
-            <p className="text-xl">النتيجة: {score} من {totalQuestions}</p>
-            <p className="text-lg text-gray-600">النسبة المئوية: {percentage}%</p>
+            <p className="text-xl">النتيجة: {toArabicNumerals(score)} من {toArabicNumerals(totalQuestions)}</p>
+            <p className="text-lg text-gray-600">النسبة المئوية: {formatPercentageArabic(percentage)}</p>
             <div className={`text-lg font-bold ${
               percentage >= 80 ? 'text-green-600' : 
               percentage >= 60 ? 'text-yellow-600' : 'text-red-600'
@@ -228,7 +231,7 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 rtl-container">
       <div className="max-w-2xl mx-auto">
         {/* Header with Timer and Score */}
         <div className="flex justify-between items-center mb-8">
@@ -237,16 +240,16 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
           <div className="text-center">
             {trainingMode === 'timed' && (
               <div className="text-2xl font-bold text-red-600 mb-2">
-                ⏰ {timeLeft}s
+                ⏰ {toArabicNumerals(timeLeft)}s
               </div>
             )}
             <div className="text-lg font-semibold">
-              النتيجة: {score} / {totalQuestions}
+              النتيجة: {toArabicNumerals(score)} / {toArabicNumerals(totalQuestions)}
             </div>
           </div>
           
           <div className="text-lg font-bold text-green-600">
-            {totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0}%
+            {formatPercentageArabic(totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0)}
           </div>
         </div>
 
@@ -254,12 +257,12 @@ const TrainingSection: React.FC<TrainingProps> = ({ onBack }) => {
         {currentQuestion && (
           <Card className="p-8 text-center">
             <div className="text-6xl font-bold text-gray-700 mb-8">
-              {currentQuestion.num1} × {currentQuestion.num2} = ?
+              {toArabicNumerals(currentQuestion.num1)} × {toArabicNumerals(currentQuestion.num2)} = ؟
             </div>
             
             <div className="flex gap-4 justify-center items-center">
               <Input
-                type="number"
+                type="text"
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && userAnswer && checkAnswer()}

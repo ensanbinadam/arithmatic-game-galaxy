@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -99,5 +100,32 @@
 
   body {
     @apply bg-background text-foreground;
+    direction: rtl;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+
+  html {
+    direction: rtl;
+  }
+}
+
+/* تخصيص إضافي لدعم RTL */
+.rtl-container {
+  direction: rtl;
+  text-align: right;
+}
+
+/* تصحيح اتجاه الأزرار والعناصر التفاعلية */
+button, input, select, textarea {
+  direction: rtl;
+}
+
+/* تصحيح ترتيب العناصر في Flexbox */
+.flex-rtl {
+  flex-direction: row-reverse;
+}
+
+/* تصحيح موضع الأيقونات */
+.icon-rtl {
+  transform: scaleX(-1);
 }

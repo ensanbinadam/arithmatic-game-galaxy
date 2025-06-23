@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, Clock, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { toArabicNumerals, formatTimeArabic, formatPercentageArabic } from '@/utils/arabicNumbers';
 
 interface QuizProps {
   onBack: () => void;
@@ -61,7 +62,7 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
         }
         
         newQuestions.push({
-          question: `${num1} × ${num2} = ?`,
+          question: `${toArabicNumerals(num1)} × ${toArabicNumerals(num2)} = ؟`,
           options: options.sort(() => Math.random() - 0.5),
           correct,
           type: 'multiple'
@@ -71,7 +72,7 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
         const displayAnswer = isTrue ? correct : correct + Math.floor(Math.random() * 10) + 1;
         
         newQuestions.push({
-          question: `${num1} × ${num2} = ${displayAnswer}`,
+          question: `${toArabicNumerals(num1)} × ${toArabicNumerals(num2)} = ${toArabicNumerals(displayAnswer)}`,
           options: [1, 0], // 1 = صحيح, 0 = خطأ
           correct: isTrue ? 1 : 0,
           type: 'truefalse'
@@ -140,22 +141,16 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
     );
   };
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
   if (quizCompleted) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-4 flex items-center justify-center rtl-container">
         <Card className="p-8 text-center max-w-md">
           <CheckCircle className="mx-auto mb-4 text-green-600" size={64} />
           <h2 className="text-3xl font-bold mb-4">انتهى الاختبار!</h2>
           <div className="space-y-3 mb-6">
-            <p className="text-xl">النتيجة: {score} من {questions.length}</p>
-            <p className="text-lg text-gray-600">النسبة المئوية: {percentage}%</p>
+            <p className="text-xl">النتيجة: {toArabicNumerals(score)} من {toArabicNumerals(questions.length)}</p>
+            <p className="text-lg text-gray-600">النسبة المئوية: {formatPercentageArabic(percentage)}</p>
             <div className={`text-lg font-bold ${
               percentage >= 90 ? 'text-green-600' : 
               percentage >= 70 ? 'text-yellow-600' : 'text-red-600'
@@ -176,11 +171,11 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
 
   if (!quizStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-4 rtl-container">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <Button onClick={onBack} variant="outline" className="flex items-center gap-2">
-              <ArrowDown className="rotate-90" size={16} />
+              <ArrowDown className="rotate-90 icon-rtl" size={16} />
               العودة للقائمة الرئيسية
             </Button>
             <h1 className="text-3xl font-bold text-center flex items-center gap-3">
@@ -207,14 +202,14 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
                         : "hover:bg-orange-50"
                     }`}
                   >
-                    {num}
+                    {toArabicNumerals(num)}
                   </Button>
                 ))}
               </div>
               <p className="text-center text-gray-600">
                 {selectedTables.length === 0 ? 
                   "سيتم اختبارك في جميع الجداول" :
-                  `سيتم اختبارك في ${selectedTables.length} جدول`
+                  `سيتم اختبارك في ${toArabicNumerals(selectedTables.length)} جدول`
                 }
               </p>
             </Card>
@@ -230,7 +225,7 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
                 >
                   <div className="text-center">
                     <div className="text-lg font-bold">سهل</div>
-                    <div className="text-sm opacity-80">10 أسئلة - 5 دقائق</div>
+                    <div className="text-sm opacity-80">{toArabicNumerals(10)} أسئلة - {toArabicNumerals(5)} دقائق</div>
                   </div>
                 </Button>
                 <Button
@@ -240,7 +235,7 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
                 >
                   <div className="text-center">
                     <div className="text-lg font-bold">متوسط</div>
-                    <div className="text-sm opacity-80">15 سؤال - 7 دقائق</div>
+                    <div className="text-sm opacity-80">{toArabicNumerals(15)} سؤال - {toArabicNumerals(7)} دقائق</div>
                   </div>
                 </Button>
                 <Button
@@ -250,7 +245,7 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
                 >
                   <div className="text-center">
                     <div className="text-lg font-bold">صعب</div>
-                    <div className="text-sm opacity-80">20 سؤال - 10 دقائق</div>
+                    <div className="text-sm opacity-80">{toArabicNumerals(20)} سؤال - {toArabicNumerals(10)} دقائق</div>
                   </div>
                 </Button>
               </div>
@@ -271,7 +266,7 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
   if (!currentQuestion) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-4 rtl-container">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -279,15 +274,15 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
           
           <div className="text-center">
             <div className="text-2xl font-bold text-red-600 mb-2">
-              ⏰ {formatTime(timeLeft)}
+              ⏰ {formatTimeArabic(timeLeft)}
             </div>
             <div className="text-lg">
-              السؤال {currentQuestionIndex + 1} من {questions.length}
+              السؤال {toArabicNumerals(currentQuestionIndex + 1)} من {toArabicNumerals(questions.length)}
             </div>
           </div>
           
           <div className="text-lg font-bold text-green-600">
-            النتيجة: {score}
+            النتيجة: {toArabicNumerals(score)}
           </div>
         </div>
 
@@ -320,7 +315,7 @@ const QuizSection: React.FC<QuizProps> = ({ onBack }) => {
                   selectedAnswer === option ? "bg-orange-600" : ""
                 }`}
               >
-                {option}
+                {toArabicNumerals(option)}
               </Button>
             ))}
 
